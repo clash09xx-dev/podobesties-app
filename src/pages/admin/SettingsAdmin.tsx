@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Save, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
-import { auth } from "../../lib/firebase";
-import { updatePassword } from "firebase/auth";
 
 export default function SettingsAdmin() {
   const [apiKey, setApiKey] = useState("");
@@ -119,6 +117,11 @@ export default function SettingsAdmin() {
       setMessagePassword("Hasła nie pasują do siebie.");
       return;
     }
+    if (newPassword.length < 8) {
+      setStatusPassword("error");
+      setMessagePassword("Hasło musi mieć co najmniej 8 znaków.");
+      return;
+    }
     try {
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
@@ -132,9 +135,14 @@ export default function SettingsAdmin() {
       if (!res.ok) throw new Error(data.error);
 
       setStatusPassword("success");
-      setMessagePassword("Hasło zostało zmienione.");
+      setMessagePassword("Hasło zostało zmienione. Za chwilę zalogujesz się ponownie.");
       setNewPassword("");
       setConfirmPassword("");
+      window.setTimeout(() => {
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("demoToken");
+        window.location.assign("/admin");
+      }, 1400);
     } catch (error: any) {
       setStatusPassword("error");
       setMessagePassword(error.message || "Błąd podczas zmiany hasła.");

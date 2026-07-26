@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   LayoutDashboard,
   GraduationCap,
@@ -7,10 +7,8 @@ import {
   Settings,
   LogOut,
   Globe,
-  PenTool,
-  Film
+  PenTool
 } from "lucide-react";
-import { auth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "../lib/firebase";
 import AdminDashboard from "./admin/AdminDashboard";
 import SiteEditor from "./admin/SiteEditor";
 import TrainingAdmin from "./admin/TrainingAdmin";
@@ -19,31 +17,14 @@ import FormsAdmin from "./admin/FormsAdmin";
 import SettingsAdmin from "./admin/SettingsAdmin";
 import BlogAdmin from "./admin/BlogAdmin";
 
-export const IS_DEMO_MODE = true;
+export const IS_DEMO_MODE = false;
 
-const DemoLocked = ({ feature, onBack }: { feature: string, onBack?: () => void }) => (
-  <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
-      <Settings className="w-8 h-8 text-white/30" />
-    </div>
-    <h3 className="text-2xl font-serif text-white mb-2">{feature} zablokowana</h3>
-    <p className="text-white/40 max-w-md mx-auto">
-      Ta sekcja jest zablokowana w wersji demonstracyjnej, aby zapobiec niepożądanym zmianom.
-    </p>
-    {onBack && (
-      <button onClick={onBack} className="mt-8 px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-white/90 transition-colors text-sm">
-        Wróć
-      </button>
-    )}
-  </div>
-);
+const ADMIN_EMAIL = "kontakt@podobesties.pl";
 
 export default function Admin() {
   const [token, setToken] = useState(localStorage.getItem("adminToken"));
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
-  const [authSuccess, setAuthSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [editorUnlocked, setEditorUnlocked] = useState(false);
@@ -53,39 +34,20 @@ export default function Admin() {
     "dashboard" | "editor" | "training" | "gallery" | "forms" | "settings" | "blog"
   >("dashboard");
 
-  useEffect(() => {
-    // Demo bypass
-    const demoToken = localStorage.getItem("demoToken");
-    if (demoToken === "admin-demo") {
-      setToken("demo-admin-token");
-    }
-  }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
     setLoading(true);
 
     try {
-      if ((email === "demo@podobesties.pl" && password === "demo123") || 
-          (email === "kontakt@podobesties.pl" && password === "test123")) {
-        localStorage.setItem("adminToken", "demo-admin-token");
-        setToken("demo-admin-token");
-        setLoading(false);
-        return;
-      }
-      
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
-
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login-custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: idToken })
+        body: JSON.stringify({ email: ADMIN_EMAIL, password })
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok || !data.token) throw new Error(data.error || "Nieprawidłowe dane logowania.");
       
       localStorage.setItem("adminToken", data.token);
       setToken(data.token);
@@ -99,25 +61,11 @@ export default function Admin() {
 
   
 
-  const handleResetPassword = async () => {
-    setAuthError("");
-    setAuthSuccess("");
-    if (!email) {
-      setAuthError("Aby zresetować hasło, wpisz adres e-mail powyżej i kliknij link.");
-      return;
-    }
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setAuthSuccess("Wysłano link do zresetowania hasła na podany adres.");
-    } catch (error: any) {
-      setAuthSuccess("Wysłano link do zresetowania hasła na podany adres.");
-    }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
+  const handleLogout = () => {
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("demoToken");
     setToken(null);
+    setPassword("");
   };
 
   if (loading) {
@@ -145,20 +93,15 @@ export default function Admin() {
               {authError}
             </div>
           )}
-          {authSuccess && (
-            <div className="text-green-400 text-sm bg-green-400/10 p-4 rounded-xl text-center">
-              {authSuccess}
-            </div>
-          )}
-          
           <div className="space-y-4">
             <input
               type="email"
               required
-              placeholder="kontakt@podobesties.pl"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#1A1A1A] border border-white/10 p-4 rounded-2xl text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+              aria-label="Login administratora"
+              value={ADMIN_EMAIL}
+              readOnly
+              autoComplete="username"
+              className="w-full bg-[#1A1A1A] border border-white/10 p-4 rounded-2xl text-white/80 text-sm cursor-default focus:outline-none"
             />
             <div className="relative">
               <input
@@ -167,6 +110,7 @@ export default function Admin() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 className="w-full bg-[#1A1A1A] border border-white/10 p-4 rounded-2xl text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>
