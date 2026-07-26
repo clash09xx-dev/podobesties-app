@@ -20,11 +20,15 @@ export default function TinyMCEEditor({ value, onChange, height = 500 }: TinyMCE
       margin: 0 auto;
       padding: 24px 28px;
       color: #343434;
-      font-family: "Inter", Arial, sans-serif;
+      font-family: "Inter", Arial, sans-serif !important;
       font-size: 17px;
       font-weight: 400;
       line-height: 1.75;
       overflow-wrap: anywhere;
+    }
+
+    body.blog-content * {
+      font-family: inherit !important;
     }
 
     .blog-content p { margin: 0 0 1.25em; }
@@ -37,7 +41,7 @@ export default function TinyMCEEditor({ value, onChange, height = 500 }: TinyMCE
     .blog-content h6 {
       margin: 1.45em 0 0.55em;
       color: #111111;
-      font-family: "GT Alpina", "Cormorant Garamond", Georgia, serif;
+      font-family: "GT Alpina", "Cormorant Garamond", Georgia, serif !important;
       font-weight: 500;
       line-height: 1.15;
     }
@@ -51,19 +55,27 @@ export default function TinyMCEEditor({ value, onChange, height = 500 }: TinyMCE
 
     .blog-content ul,
     .blog-content ol {
+      display: block !important;
       margin: 0 0 1.35em;
       padding-left: 1.65em;
+      list-style-position: outside !important;
     }
 
-    .blog-content ul { list-style: disc outside; }
-    .blog-content ol { list-style: decimal outside; }
-    .blog-content ul ul { list-style-type: circle; }
-    .blog-content ul ul ul { list-style-type: square; }
-    .blog-content ol ol { list-style-type: lower-alpha; }
+    .blog-content ul { list-style-type: disc !important; }
+    .blog-content ol { list-style-type: decimal !important; }
+    .blog-content ul ul { list-style-type: circle !important; }
+    .blog-content ul ul ul { list-style-type: square !important; }
+    .blog-content ol ol { list-style-type: lower-alpha !important; }
 
     .blog-content li {
+      display: list-item !important;
       margin: 0.35em 0;
       padding-left: 0.2em;
+    }
+
+    .blog-content li::marker {
+      color: currentColor;
+      font-size: 0.9em;
     }
 
     .blog-content li > ul,
@@ -83,7 +95,7 @@ export default function TinyMCEEditor({ value, onChange, height = 500 }: TinyMCE
       padding: 0.3em 0 0.3em 1.35em;
       border-left: 3px solid #C6A15B;
       color: #5f5b55;
-      font-family: "GT Alpina", "Cormorant Garamond", Georgia, serif;
+      font-family: "GT Alpina", "Cormorant Garamond", Georgia, serif !important;
       font-size: 1.25em;
       font-style: italic;
       line-height: 1.5;
