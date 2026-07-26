@@ -20,10 +20,10 @@ export default function TinyMCEEditor({ value, onChange, height = 500 }: TinyMCE
       margin: 0 auto;
       padding: 24px 28px;
       color: #343434;
-      font-family: "Inter", Arial, sans-serif !important;
-      font-size: 17px;
+      font-family: "GT Alpina", "Cormorant Garamond", Georgia, serif !important;
+      font-size: 20px;
       font-weight: 400;
-      line-height: 1.75;
+      line-height: 1.65;
       overflow-wrap: anywhere;
     }
 
