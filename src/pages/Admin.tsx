@@ -23,6 +23,7 @@ const ADMIN_EMAIL = "kontakt@podobesties.pl";
 
 export default function Admin() {
   const [token, setToken] = useState(localStorage.getItem("adminToken"));
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,10 @@ export default function Admin() {
     setLoading(true);
 
     try {
+      if (email.trim().toLowerCase() !== ADMIN_EMAIL) {
+        throw new Error("Nieprawidłowe dane logowania.");
+      }
+
       const res = await fetch("/api/auth/login-custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,6 +70,7 @@ export default function Admin() {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("demoToken");
     setToken(null);
+    setEmail("");
     setPassword("");
   };
 
@@ -98,10 +104,11 @@ export default function Admin() {
               type="email"
               required
               aria-label="Login administratora"
-              value={ADMIN_EMAIL}
-              readOnly
+              placeholder="Login"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
-              className="w-full bg-[#1A1A1A] border border-white/10 p-4 rounded-2xl text-white/80 text-sm cursor-default focus:outline-none"
+              className="w-full bg-[#1A1A1A] border border-white/10 p-4 rounded-2xl text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
             />
             <div className="relative">
               <input
